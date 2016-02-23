@@ -1,5 +1,6 @@
 package com.zjs;
 
+import com.alibaba.fastjson.JSON;
 import com.zjs.dto.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,6 @@ public class RedisValueOperationsTests {
     @Autowired
     RedisTemplate redisTemplate;
 //    RedisTemplate<String,User> redisTemplate;
-
 
 
     @Test
@@ -103,7 +103,7 @@ public class RedisValueOperationsTests {
      */
     @Test
     public void testSetGetDto() {
-        ValueOperations<String,User> vop = redisTemplate.opsForValue();
+        ValueOperations<String, User> vop = redisTemplate.opsForValue();
 
         User user = new User();
         user.setUserCode("001");
@@ -115,5 +115,37 @@ public class RedisValueOperationsTests {
         System.out.println("get User value is");
         System.out.println(getUser.toString());
 
+    }
+
+    /**
+     * 设置 取值 json数组
+     */
+    @Test
+    public void testSetGetJsonList() {
+        ValueOperations<String, String> vop = redisTemplate.opsForValue();
+
+        User user1 = new User();
+        user1.setUserCode("001");
+        user1.setUserName("Mike");
+
+        User user2 = new User();
+        user2.setUserCode("002");
+        user2.setUserName("Sunny");
+
+        List<User> userList = new ArrayList<>();
+        userList.add(user1);
+        userList.add(user2);
+
+        String userListJson = JSON.toJSONString(userList);
+
+        vop.set("userListJson", userListJson);
+
+        String getUserListJson = vop.get("userListJson");
+        List<User> getUserList = JSON.parseArray(getUserListJson, User.class);
+        for (User user : getUserList) {
+            System.out.println("get User value is");
+            System.out.println("user code: " + user.getUserCode());
+            System.out.println("user name: " + user.getUserName());
+        }
     }
 }
